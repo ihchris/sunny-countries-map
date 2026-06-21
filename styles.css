@@ -174,4 +174,8 @@ body.nocturne-mode .leaflet-tooltip {
 body.nocturne-mode .leaflet-tooltip-top:before { border-top-color: rgba(255, 255, 255, 0.1); }
 
 body.nocturne-mode .float-toggle, body.nocturne-mode #themeToggleBtn {
-  background: rgba(
+  background: rgba(10, 15, 25, 0.9);
+  color: #eff6ff;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+body.nocturne-mode .float-toggle:hover { background: rgba(255, 255, 255, 0.1); }

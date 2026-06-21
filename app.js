@@ -128,4 +128,115 @@ function updateMapMarkers(visible) {
       </div>
     `, { direction: 'top', offset: [0, -10], opacity: 0.95 });
     
-    m.on('click', () => setSelected
+    m.on('click', () => setSelectedCountry(c.name));
+    m.on('mouseover', function() { if(!isActive) this.setStyle({radius: 10}); });
+    m.on('mouseout', function() { if(!isActive) this.setStyle({radius: 8}); });
+    
+    m.addTo(markerLayer);
+    markerByName.set(c.name, m);
+  });
+}
+
+function renderCards() {
+  const vis = getVisibleCountries();
+  els.visibleCount.textContent = `${vis.length} countries loaded`;
+  
+  els.cardsGrid.innerHTML = vis.map((c, i) => {
+    const val = state.mode === 'sunshine' ? `${c.sunshineHours}h` : formatTemp(c.avgTempC);
+    const active = state.selectedName === c.name ? 'active' : '';
+    const band = bandForTemp(c.avgTempC).className;
+    
+    return `
+      <button data-name="${c.name}" class="climate-card ${band} ${active} w-full text-left rounded-xl p-3.5 mb-3 flex justify-between items-center group focus:outline-none">
+        <div>
+          <div class="font-bold text-[15px] text-slate-700 group-hover:text-slate-900 transition-colors">${c.flag} ${c.name}</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">${c.city}</div>
+        </div>
+        <div class="text-right">
+          <div class="font-bold text-lg text-slate-800">${val}</div>
+        </div>
+      </button>
+    `;
+  }).join('');
+  updateMapMarkers(vis);
+}
+
+function bindUI() {
+  els.closeLeftBtn.addEventListener('click', () => { els.leftSidebar.classList.add('panel-hidden-left'); els.toggleLeftBtn.classList.add('visible'); });
+  els.toggleLeftBtn.addEventListener('click', () => { els.leftSidebar.classList.remove('panel-hidden-left'); els.toggleLeftBtn.classList.remove('visible'); });
+  els.closeRightBtn.addEventListener('click', () => { els.rightSidebar.classList.add('panel-hidden-right'); });
+
+  // Nocturne Mode Toggle Logic
+  els.themeToggleBtn.addEventListener('click', () => {
+    isNocturne = !isNocturne;
+    document.body.classList.toggle('nocturne-mode', isNocturne);
+    
+    // Swap icon
+    els.themeToggleBtn.innerHTML = isNocturne ? '☀️' : '🌙';
+    
+    // Swap Map Tiles
+    map.removeLayer(baseTileLayer);
+    const tileUrl = isNocturne 
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' 
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      
+    baseTileLayer = L.tileLayer(tileUrl, {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd'
+    }).addTo(map);
+  });
+
+  els.modeSunshine.addEventListener('click', () => { state.mode = 'sunshine'; toggleActiveBtn(els.modeSunshine, els.modeTemperature, true, 'text-amber-600'); renderCards(); });
+  els.modeTemperature.addEventListener('click', () => { state.mode = 'temperature'; toggleActiveBtn(els.modeSunshine, els.modeTemperature, false, 'text-amber-600'); renderCards(); });
+  els.unitC.addEventListener('click', () => { state.unit = 'C'; toggleActiveBtn(els.unitC, els.unitF, true, 'text-sky-600'); renderCards(); if(state.selectedName) setSelectedCountry(state.selectedName, false); });
+  els.unitF.addEventListener('click', () => { state.unit = 'F'; toggleActiveBtn(els.unitC, els.unitF, false, 'text-sky-600'); renderCards(); if(state.selectedName) setSelectedCountry(state.selectedName, false); });
+
+  els.searchInput.addEventListener('input', e => { state.query = e.target.value; renderCards(); });
+  els.regionFilters.addEventListener('click', e => {
+    if (!e.target.dataset.region) return;
+    state.region = e.target.dataset.region;
+    renderRegionFilters();
+    renderCards();
+  });
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-name]');
+    if (btn) setSelectedCountry(btn.dataset.name);
+  });
+}
+
+async function loadLiveWeather() {
+  if(typeof countries === 'undefined') return;
+  countries.forEach(c => {
+    const codeInfo = weatherCodes[0]; 
+    weatherByName.set(c.name, { currentTempC: c.avgTempC, feelsLikeC: c.avgTempC + 1, humidity: 45, windKph: 12, label: codeInfo.text, icon: codeInfo.icon });
+  });
+  renderCards();
+  setSelectedCountry(state.selectedName, false);
+}
+
+function initMap() {
+  map = L.map('map', { zoomControl: false, minZoom: 2, maxBounds: [[-90, -180], [90, 180]] }).setView([38.52, -8.89], 4);
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  
+  baseTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abcd'
+  }).addTo(map);
+  
+  markerLayer = L.layerGroup().addTo(map);
+}
+
+// Bootstrapping
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    initMap();
+    renderRegionFilters();
+    bindUI();
+    loadLiveWeather();
+    
+    // Start with right sidebar closed
+    els.rightSidebar.classList.add('panel-hidden-right');
+  }, 100);
+});
