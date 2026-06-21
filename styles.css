@@ -1,139 +1,53 @@
-:root {
-  color-scheme: light;
-  --panel: rgba(255, 255, 255, 0.85);
-  --line: rgba(255, 255, 255, 0.6);
+/* --- NOCTURNE MODE OVERRIDES --- */
+body.nocturne-mode {
+  background: #090e17;
+  color: #eff6ff;
+}
+body.nocturne-mode #map { background: #090e17; }
+
+/* Darken Glass Panels */
+body.nocturne-mode .glass-panel {
+  background: rgba(10, 15, 25, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  background: #f0f9ff;
-  color: #0f172a;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+/* Override Tailwind Text & Background Utilities */
+body.nocturne-mode .text-slate-800,
+body.nocturne-mode .text-slate-700 { color: #f8fafc !important; }
+body.nocturne-mode .text-slate-500,
+body.nocturne-mode .text-slate-400 { color: #94a3b8 !important; }
+
+body.nocturne-mode .bg-white\/40, 
+body.nocturne-mode .bg-white\/60,
+body.nocturne-mode .bg-white\/70,
+body.nocturne-mode .bg-white { 
+  background-color: rgba(255, 255, 255, 0.03) !important; 
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+body.nocturne-mode .bg-slate-100\/80 { background-color: rgba(0, 0, 0, 0.4) !important; }
+
+/* Dark Mode Climate Cards */
+body.nocturne-mode .climate-card { 
+  background: rgba(255, 255, 255, 0.03); 
+  border-color: rgba(255, 255, 255, 0.05); 
+}
+body.nocturne-mode .climate-card:hover { 
+  background: rgba(255, 255, 255, 0.08); 
+}
+body.nocturne-mode .climate-card.active { 
+  background: rgba(255, 255, 255, 0.1); 
+  border-color: rgba(255, 255, 255, 0.3); 
 }
 
-#map {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  height: 100vh;
-  width: 100vw;
-  background: #f8fafc;
+/* Dark Mode Tooltips & Toggles */
+body.nocturne-mode .leaflet-tooltip {
+  background: rgba(10, 15, 25, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #eff6ff;
 }
-
-.ui-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 1000;
-  pointer-events: none;
-  display: flex;
-  justify-content: space-between;
-  padding: 1.25rem;
-  gap: 1.5rem;
-  overflow: hidden;
+body.nocturne-mode .float-toggle {
+  background: rgba(10, 15, 25, 0.9);
+  color: #eff6ff;
+  border-color: rgba(255, 255, 255, 0.1);
 }
-
-.ui-layer > * { pointer-events: auto; }
-
-.glass-panel {
-  background: var(--panel);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  border: 1px solid var(--line);
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
-  border-radius: 1.5rem;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
-}
-
-.panel-hidden-left { transform: translateX(-120%); opacity: 0; pointer-events: none; }
-.panel-hidden-right { transform: translateX(120%); opacity: 0; pointer-events: none; }
-
-.display-font { font-family: 'Space Grotesk', sans-serif; }
-
-.custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.15); border-radius: 10px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(15, 23, 42, 0.3); }
-
-.band-tropical { border-left: 4px solid #f97316; }
-.band-warm { border-left: 4px solid #f59e0b; }
-.band-mild { border-left: 4px solid #10b981; }
-.band-cool { border-left: 4px solid #0ea5e9; }
-.band-polar { border-left: 4px solid #8b5cf6; }
-
-.climate-card {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.climate-card:hover { 
-  background: rgba(255, 255, 255, 1); 
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.climate-card.active {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  box-shadow: 0 0 0 2px #f59e0b, 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.float-toggle {
-  position: absolute;
-  top: 1.25rem;
-  z-index: 1000;
-  pointer-events: auto;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 1);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  padding: 0.75rem;
-  border-radius: 1rem;
-  color: #334155;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-10px);
-}
-
-.float-toggle:hover { background: #ffffff; color: #f59e0b; }
-.float-toggle.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-#toggleLeftBtn { left: 1.25rem; }
-
-/* LEAFLET OVERRIDES */
-.leaflet-control-zoom { 
-  border: none !important; 
-  margin-right: 1.5rem !important; 
-  margin-top: 1.5rem !important;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-}
-
-.leaflet-control-zoom a { 
-  background: rgba(255, 255, 255, 0.9) !important; 
-  color: #334155 !important; 
-  border-color: rgba(0,0,0,0.05) !important; 
-  backdrop-filter: blur(12px); 
-}
-
-.leaflet-control-zoom a:hover { background: #ffffff !important; color: #f59e0b !important; }
-
-.leaflet-tooltip {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #cbd5e1;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  color: #0f172a;
-  font-family: Inter, sans-serif;
-  font-weight: 600;
-}
-.leaflet-tooltip-top:before { border-top-color: #cbd5e1; }
